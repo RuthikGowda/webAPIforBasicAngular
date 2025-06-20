@@ -1,0 +1,98 @@
+[
+  {
+    "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
+    "Method": "getUserdata",
+    "RelativePath": "api/getUserData",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "emailId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
+    "Method": "UpdateUserProfile",
+    "RelativePath": "api/updateUserProfile",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userProfile",
+        "Type": "CRUDforAngular.BusinessLayer.DTOs.UserProfileDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "Login",
+    "RelativePath": "api/userLogin",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginCred",
+        "Type": "CRUDforAngular.BusinessLayer.Models.LoginModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "resetPasswordforUser",
+    "RelativePath": "api/userPasswordReset",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "emailId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "Register",
+    "RelativePath": "api/userRegistration",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userCred",
+        "Type": "CRUDforAngular.BusinessLayer.Models.userRegistration",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "Index",
+    "RelativePath": "api/userRegistration/confirm",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
