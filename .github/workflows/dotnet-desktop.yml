@@ -1,4 +1,4 @@
-name: .NET Core Web API CI
+name: .NET Test Pipeline
 
 on:
   push:
@@ -7,15 +7,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: windows-latest
 
-    env:
-      Solution_Name: CRUDforAngular.sln
-      Project_Path: CRUDforAngular/CRUDforAngular.csproj
-
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Setup .NET
@@ -24,10 +20,10 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore $env:Solution_Name
+      run: dotnet restore CRUDforAngular.sln
 
     - name: Build
-      run: dotnet build $env:Solution_Name --configuration Release --no-restore
+      run: dotnet build CRUDforAngular.sln --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test $env:Solution_Name --no-build --verbosity
+      run: dotnet test CRUDforAngular.sln --no-build --verbosity normal
