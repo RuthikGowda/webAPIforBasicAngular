@@ -28,7 +28,7 @@ namespace CRUDforAngular.Controllers
             }
             UserProfileDTO? userProfile = await _userProfileRepo.GetUserDataAsync(emailId);
 
-            return Ok();
+            return Ok(userProfile);
         }
 
         [HttpPost]

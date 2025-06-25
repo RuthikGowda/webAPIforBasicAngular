@@ -20,7 +20,7 @@ namespace CRUDforAngular.BusinessLayer.Repos
             return await _context.user
                 .Include(u => u.Phone)
                 .Include(u => u.Address)
-                .Where(u => u.Email.Equals(emailId, StringComparison.OrdinalIgnoreCase))
+                .Where(u => u.Email.ToUpper().Equals(emailId.ToUpper()))
                 .Select(u => new UserProfileDTO
                 {
                     Id = u.Id,
