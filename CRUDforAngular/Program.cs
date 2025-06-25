@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
  
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://*:8080");
 
 // Add services to the container.
 
@@ -28,7 +29,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name:"AngularSite", builder =>
     {
-        builder.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins(["http://localhost:4200", "http://localhost:8080"]).AllowAnyHeader().AllowAnyMethod();
     });
 
 });
