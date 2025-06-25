@@ -47,15 +47,20 @@ namespace CRUDforAngular.BusinessLayer.Repos
         {
             try
             {
-                var Exist = _context.user.Any(u => u.Email == loginCred.Email);
+                //var Exist = _context.user.Any(u => u.Email == loginCred.Email);
+                var Exist = _context.UserInfo.Any(u => u.Email == loginCred.Email);
                 if (!Exist)
                 {
                     return -1;// user not found
                 }
 
-                var dbPassword = _context.user.Where(u => u.Email == loginCred.Email)
-                    .Select(u => u.UserRegistration.Password)
+                var dbPassword = _context.UserInfo.Where(u => u.Email == loginCred.Email)
+                    .Select(u => u.Password)
                     .FirstOrDefault();
+
+                  //var dbPassword = _context.user.Where(u => u.Email == loginCred.Email)
+                  //  .Select(u => u.UserRegistration.Password)
+                  //  .FirstOrDefault();
                 var hasher = new PasswordHasher<LoginModel>();
                 var password = hasher.VerifyHashedPassword(loginCred, dbPassword ?? "", loginCred.Password);
 

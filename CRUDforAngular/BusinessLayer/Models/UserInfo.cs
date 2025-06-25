@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,8 +36,8 @@ namespace CRUDforAngular.BusinessLayer.Models
 
         //create navigation property for user registration  
         [ForeignKey(nameof(UserRegistration))]
-        public int UserRegistrationId { get; set; }
-        public required userRegistration UserRegistration { get; set; }
+        public   int UserRegistrationId { get; set; }
+        public  userRegistration? UserRegistration { get; set; }
 
         public ICollection<Events> Events { get; set; }
 
@@ -44,6 +45,7 @@ namespace CRUDforAngular.BusinessLayer.Models
 
     public class Phone
     {
+        [BindNever]
         public int Id { get; set; }
         public long PhoneNumber { get; set; }
 
@@ -58,6 +60,7 @@ namespace CRUDforAngular.BusinessLayer.Models
 
     public class Address
     {
+        [BindNever]
         public int Id { get; set; }
         public string AddressType { get; set; }
         public string Street { get; set; } = string.Empty;
