@@ -22,13 +22,22 @@ namespace CRUDforAngular.Controllers
         [Route("api/getUserData")]
         public  async Task<IActionResult> getUserdata([FromQuery] string emailId)
         {
-            if (string.IsNullOrEmpty(emailId))
+            try
             {
-                return BadRequest("Email ID cannot be null or empty.");
-            }
-            UserProfileDTO? userProfile = await _userProfileRepo.GetUserDataAsync(emailId);
+                if (string.IsNullOrEmpty(emailId))
+                {
+                    return BadRequest("Email ID cannot be null or empty.");
+                }
+                UserProfileDTO? userProfile = await _userProfileRepo.GetUserDataAsync(emailId);
 
-            return Ok(userProfile);
+                return Ok(userProfile);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, "Some internal server error occurred, try again later.");
+
+            }
         }
 
         [HttpPost]
@@ -94,5 +103,12 @@ namespace CRUDforAngular.Controllers
         }
 
 
+        [HttpGet]
+        [Route("api/textExcpetion")]
+        public IActionResult throwError()
+        {
+            throw new NotImplementedException();
+           
+        }
     }
 }

@@ -9,9 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://*:8080");
 
 // Add services to the container.
-
+ 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 
 builder.Services.AddOpenApi();
 //add swagger
@@ -41,13 +42,31 @@ builder.Services.Configure<smtpOptions>(builder.Configuration.GetSection(nameof(
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+// Global Exception Handler
+app.UseExceptionHandler(errorApp =>
 {
-    //app.MapOpenApi();
-    app.UseSwagger();
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var error = new
+        {
+            Message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(error);
+    });
+});
+
+
+// Configure the HTTP request pipeline.
+
+//app.MapOpenApi();
+app.UseSwagger();
     app.UseSwaggerUI();
-}
+ 
 
 app.UseHttpsRedirection();
 app.UseCors("AngularSite");
