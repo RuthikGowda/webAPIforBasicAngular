@@ -151,7 +151,7 @@ namespace CRUDforAngular.Controllers
             if (emailValidation.Result)
             {
                 Guid resetId = Guid.NewGuid();
-                string resetLink = $"http://localhost:4200/reset-password?email={emailId}&resetId={resetId}"; // Generate your reset link here
+                string resetLink = $"https://ruthik-first-project-silk.vercel.app/reset-password?email={emailId}&resetId={resetId}"; // Generate your reset link here
                bool emailsent = await _emailService.sendPasswordResetMail(emailId, resetLink);
              
                 return Ok(new Response<string>
