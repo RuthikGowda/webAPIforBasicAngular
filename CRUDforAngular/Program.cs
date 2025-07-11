@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name:"AngularSite", builder =>
     {
-        builder.WithOrigins(["http://localhost:4200", "http://localhost:8080"]).AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins(["http://localhost:4200", "http://localhost:8080","https://ruthik-first-project-silk.vercel.app"]).AllowAnyHeader().AllowAnyMethod();
     });
 
 });
