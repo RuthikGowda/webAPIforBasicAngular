@@ -18,11 +18,17 @@ builder.Services.AddOpenApi();
 //add swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<MyDBContext>( 
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("LocalConStr") 
-    )
-); 
+//builder.Services.AddDbContext<MyDBContext>( 
+//    options => options.UseSqlServer(
+//        builder.Configuration.GetConnectionString("LocalConStr") 
+//    )
+//);
+
+builder.Services.AddDbContext<MyDBContext>(
+    options=> options.UseNpgsql(
+        builder.Configuration.GetConnectionString("PostgresConStr")
+    ));
+ 
 builder.Services.AddScoped<IuserRegistrationRepo, userRegistrationRepo>();
 builder.Services.AddScoped<IuserProfileRepo, userProfileRepo>();
 builder.Services.AddScoped<EmailService>();

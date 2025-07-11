@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("0dd4f8c5-e7be-4fb4-bf97-f514bee30334")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54ec62d8c825ea0fcc08a62471fd53a6e273c6c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

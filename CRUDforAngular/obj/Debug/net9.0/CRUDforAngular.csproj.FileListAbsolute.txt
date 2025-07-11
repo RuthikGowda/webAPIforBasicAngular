@@ -154,6 +154,7 @@ C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngula
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.csproj.CoreCompileInputs.cache
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.sourcelink.json
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\scopedcss\bundle\CRUDforAngular.styles.css
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\staticwebassets.development.json
@@ -171,3 +172,5 @@ C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngula
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.pdb
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\CRUDforAngular.genruntimeconfig.cache
 C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\obj\Debug\net9.0\ref\CRUDforAngular.dll
+C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\bin\Debug\net9.0\Npgsql.dll
+C:\Users\ruthik.yogesh\source\repos\Angular + ASP.NET WEB API\CRUD\CRUDforAngular\CRUDforAngular\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

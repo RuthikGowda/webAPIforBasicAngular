@@ -1,6 +1,32 @@
 [
   {
     "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
+    "Method": "deleteEmpByID",
+    "RelativePath": "api/deleteByID",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
+    "Method": "GetAllEmployeeDataAsync",
+    "RelativePath": "api/getAllEmployeeData",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
     "Method": "getUserdata",
     "RelativePath": "api/getUserData",
     "HttpMethod": "GET",
@@ -13,6 +39,16 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
+    "Method": "throwError",
+    "RelativePath": "api/textExcpetion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
