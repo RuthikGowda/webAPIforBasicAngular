@@ -1,6 +1,7 @@
 ﻿using CRUDforAngular.BusinessLayer.CommonService;
+using CRUDforAngular.BusinessLayer.DTOs;
 using CRUDforAngular.BusinessLayer.Models;
- 
+
 using CRUDforAngular.BusinessLayer.Repos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -14,19 +15,19 @@ namespace CRUDforAngular.Controllers
     {
 
         private readonly IuserRegistrationRepo _userRegistrationRepo;
-        private readonly BusinessLayer.CommonService.EmailService _emailService; 
-        public userRegistrationController(IuserRegistrationRepo userRegistrationRepo,  BusinessLayer.CommonService.EmailService emailService)
+        private readonly BusinessLayer.CommonService.EmailService _emailService;
+        public userRegistrationController(IuserRegistrationRepo userRegistrationRepo, BusinessLayer.CommonService.EmailService emailService)
         {
             _userRegistrationRepo = userRegistrationRepo;
             _emailService = emailService;
-            
+
         }
-       
+
         [HttpPost]
         [Route("api/userRegistration")]
         public async Task<IActionResult> Register([FromBody] userRegistration userCred)
         {
-            string OTP=string.Empty;
+            string OTP = string.Empty;
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
@@ -39,12 +40,12 @@ namespace CRUDforAngular.Controllers
             }
 
             int result;
-             
-           result= _userRegistrationRepo.RegisterUser(userCred);
+
+            result = _userRegistrationRepo.RegisterUser(userCred);
 
             if (result == -1)
             {
-                return  Ok(new Response<int>
+                return Ok(new Response<int>
                 {
                     Success = false,
                     Message = "Email already exists.",
@@ -58,15 +59,15 @@ namespace CRUDforAngular.Controllers
                     Success = false,
                     Message = "An error occurred while processing your request.",
                     Data = result
-                });      
+                });
             }
 
             if (result > 0)
             {
                 OTP = new Random().Next(0, 999999).ToString("D6"); // Generate a random 6 digit OTP
 
-              await  _emailService.sendRegisterOTPMail(userCred.Email.Trim(), OTP);
- 
+                await _emailService.sendRegisterOTPMail(userCred.Email.Trim(), OTP);
+
 
             }
 
@@ -80,7 +81,7 @@ namespace CRUDforAngular.Controllers
                     otp = OTP,
                 }
             });
- 
+
         }
 
         [HttpPost]
@@ -95,7 +96,7 @@ namespace CRUDforAngular.Controllers
         public IActionResult Login(LoginModel loginCred)
         {
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 return Conflict(new Response<int>
@@ -141,37 +142,110 @@ namespace CRUDforAngular.Controllers
         public async Task<IActionResult> resetPasswordforUser([FromQuery] [Required(ErrorMessage ="Email Id is required")]
          [EmailAddress(ErrorMessage ="Entered Email Address is not valid")]string emailId)
         {
-            if (string.IsNullOrEmpty(emailId))
+            try
             {
-                return BadRequest("Email ID cannot be null or empty.");
-            }
-            var emailValidation = _userRegistrationRepo.ValidateEmail(emailId);
-
-            //if emailValidation.Result is true, send password reset link through email
-            if (emailValidation.Result)
-            {
-                Guid resetId = Guid.NewGuid();
-                string resetLink = $"https://ruthik-first-project-silk.vercel.app/reset-password?email={emailId}&resetId={resetId}"; // Generate your reset link here
-               bool emailsent = await _emailService.sendPasswordResetMail(emailId, resetLink);
-             
-                return Ok(new Response<string>
+                bool dbUdated = false;
+                bool emailsent = false;
+                if (string.IsNullOrEmpty(emailId))
                 {
-                    Success = emailsent,
-                    Message = emailsent ? "Password reset link sent successfully." : "Error in sending email. try again after sometimes!! ",
-                    Data = resetLink
-                });
+                    return BadRequest("Email ID cannot be null or empty.");
+                }
+                var emailValidation = _userRegistrationRepo.ValidateEmail(emailId);
+
+                //if emailValidation.Result is true, send password reset link through email
+                if (emailValidation.Result)
+                {
+                    Guid resetId = Guid.NewGuid();
+                    string resetLink = $"https://ruthik-first-project-silk.vercel.app/resetpassword?email={emailId}&resetId={resetId}"; // Generate your reset link here
+                                                                                                                                         // Save the resetId and emailId in the database for later validation
+
+
+                    dbUdated = await _userRegistrationRepo.savePasswordInfo(emailId, resetId.ToString());
+                    if (dbUdated)
+                    {
+                        emailsent = await _emailService.sendPasswordResetMail(emailId, resetLink);
+                    }
+                    return Ok(new Response<string>
+                    {
+                        Success = emailsent,
+                        Message = emailsent ? "Password reset link sent successfully." : "Error in sending email. try again after sometimes!! ",
+                        Data = resetLink
+                    });
+                }
+                else
+                {
+                    return Ok(new Response<string>
+                    {
+                        Success = false,
+                        Message = $"Email not found. Please use a valid email or <a href='http://localhost:4200/Register' style='color: #007bff; text-decoration: none; font-weight: bold;'>Register</a>.",
+                        Data = null
+                    });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Ok(new Response<string>
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<string>
                 {
                     Success = false,
-                    Message = $"Email not found. Please use a valid email or <a href='http://localhost:4200/Register' style='color: #007bff; text-decoration: none; font-weight: bold;'>Register</a>.",
+                    Message = $"An error occurred while processing your request",
                     Data = null
                 });
-            }
 
+
+            }
+        }
+
+        [HttpPost]
+        [Route("api/validate-resetPswd")]
+        public async Task<IActionResult> validateresetPasswordId([FromBody] validateResetPasswordDto resetPasswordModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Conflict(new Response<List<string>>
+                {
+                    Success = false,
+                    Message = $"Validation failed.{errors.ToString()}",
+                    Data = errors
+                });
+            }
+            (bool result, string message) = await _userRegistrationRepo.ValidateResetId(resetPasswordModel.email, resetPasswordModel.resetId);
+
+            return Ok(new Response<bool>
+            {
+                Success = result,
+                Message = message,
+                Data = result
+            });
+
+        }
+
+        //generate resetpassword endpoint
+        [HttpPost]
+        [Route("api/resetPassword")]
+        public async Task<IActionResult> resetPassword([FromBody] ResetPasswordDto resetPasswordModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Conflict(new Response<List<string>>
+                {
+                    Success = false,
+                    Message = $"Validation failed.{errors.ToString()}",
+                    Data = errors
+                });
+            }
+            (bool result, string message) = await _userRegistrationRepo.resetPassword(resetPasswordModel);
+            
+                return Ok(new Response<bool>
+                {
+                    Success = result,
+                    Message = message,
+                    Data = result
+                });
+            
 
         }
     }
 }
+

@@ -42,6 +42,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "resetPassword",
+    "RelativePath": "api/resetPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "resetPasswordModel",
+        "Type": "CRUDforAngular.BusinessLayer.DTOs.ResetPasswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
     "Method": "throwError",
     "RelativePath": "api/textExcpetion",
@@ -127,6 +143,22 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "validateresetPasswordId",
+    "RelativePath": "api/validate-resetPswd",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "resetPasswordModel",
+        "Type": "CRUDforAngular.BusinessLayer.DTOs.validateResetPasswordDto",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

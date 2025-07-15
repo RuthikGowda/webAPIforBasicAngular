@@ -27,7 +27,7 @@ namespace CRUDforAngular.BusinessLayer.CommonService
 
                 mailMessage.Subject = "Your OTP for Registration";
                 mailMessage.To.Add(email);
-                mailMessage.From = new MailAddress(_smtpOptions.username);
+                mailMessage.From = new MailAddress(_smtpOptions.username,_smtpOptions.displayName);
                 mailMessage.IsBodyHtml = true; // Set to true to send HTML content
 
                 SmtpClient smtp = new SmtpClient();
@@ -66,7 +66,7 @@ namespace CRUDforAngular.BusinessLayer.CommonService
                        <a href="""" style=""font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600"">My Angular Basic</a>
                    </div>
                    <p style=""font-size:1.1em"">Hi, {emailId.Replace("@gmail.com", "")}</p>
-                   <p>Please use the below link to reset your password. This link is valid for 30 minutes.<br/></p>
+                   <p>Please use the below link to reset your password. This link is valid for 10 minutes.<br/></p>
                    <h4 style=""background: #00466a; margin: 0 auto; width: max-content; padding: 0 15px; color: #fff; border-radius: 4px;"">
                        <a href=""{resetLink}"" style=""color: #fff; text-decoration: none;"">Reset Password</a>
                    </h4>
@@ -82,8 +82,9 @@ namespace CRUDforAngular.BusinessLayer.CommonService
 
                 mailMessage.Subject = "Password Reset Request";
                 mailMessage.To.Add(emailId);
-                mailMessage.From = new MailAddress(_smtpOptions.username);
-                mailMessage.IsBodyHtml = true; // Set to true to send HTML content
+                mailMessage.From = new MailAddress(_smtpOptions.username, _smtpOptions.displayName);
+                // add company name to show in email in From field
+                 mailMessage.IsBodyHtml = true; // Set to true to send HTML content
 
                 SmtpClient smtp = new SmtpClient();
                 smtp.Host = _smtpOptions.Host;

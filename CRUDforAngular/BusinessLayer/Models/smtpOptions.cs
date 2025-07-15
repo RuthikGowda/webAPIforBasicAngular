@@ -7,5 +7,7 @@
         public bool EnableSsl { get; set; }
         public string username { get; set; }
         public string appPassword { get; set; }
+
+        public string displayName { get; set; } 
     }
 }

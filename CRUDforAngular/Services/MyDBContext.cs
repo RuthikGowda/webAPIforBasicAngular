@@ -12,6 +12,8 @@ namespace CRUDforAngular.Services
 
         public DbSet<Phone> UserPhones { get; set; }
         public DbSet<Address> UserAddress { get; set; }   
+
+        public DbSet<passwordReset> passwordResets { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> options)
                 : base(options)
         {
