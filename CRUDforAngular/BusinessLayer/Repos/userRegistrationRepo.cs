@@ -1,4 +1,5 @@
-﻿using CRUDforAngular.BusinessLayer.DTOs;
+﻿using CRUDforAngular.BusinessLayer.CommonService;
+using CRUDforAngular.BusinessLayer.DTOs;
 using CRUDforAngular.BusinessLayer.Models;
 using CRUDforAngular.Services;
 using Microsoft.AspNetCore.Identity;
@@ -10,37 +11,62 @@ namespace CRUDforAngular.BusinessLayer.Repos
     public class userRegistrationRepo : IuserRegistrationRepo
     {
         private readonly MyDBContext _context;
-        public userRegistrationRepo(MyDBContext context)
+        private readonly IuserProfileRepo _userProfileRepo;
+        private readonly EmailService _emailService;
+        public userRegistrationRepo(MyDBContext context, IuserProfileRepo userProfileRepo,
+            EmailService emailService)
         {
             _context = context;
+            _userProfileRepo = userProfileRepo;
+            _emailService = emailService;
         }
 
-        public int RegisterUser(userRegistration userCred)
+        public async Task<(bool, string)> RegisterUser(UserRegistrationDTO userCred, string OTP)
         {
             try
             {
-                if (_context.UserInfo.Any(u => u.Email.ToLower() == userCred.Email.ToLower()))
+                var data = await _context.UserInfo.AsNoTracking().Select(s => new
                 {
-                    return -1; // Email already exists
+                    s.Email,
+                    s.isVerified
+                }).FirstOrDefaultAsync(u => u.Email.ToLower() == userCred.Email.ToLower());
+                
+                if (data != null)
+                {
+                    if (!data.isVerified )
+                        await _userProfileRepo.deleteEmpByIDAsync(data.Email);
+                    else
+                    {
+                        return (false, "Email already exists in Database!!");
+                    }
                 }
-                var hasher = new PasswordHasher<userRegistration>();
+                
+                var hasher = new PasswordHasher<UserRegistrationDTO>();
                 userCred.Password = hasher.HashPassword(userCred, userCred.Password);
                 UserInfo user = new UserInfo
                 {
-                    UserRegistration = userCred
-                };
-                user.Email = userCred.Email;
+                    FirstName = userCred.FirstName,
+                    LastName = userCred.LastName, 
+                    Email = userCred.Email.ToLower(),
+                    UserRegistration = new userRegistration
+                    {
+                        Email = userCred.Email.ToLower(),
+                        Password= userCred.Password,
+                        confirmPassword = userCred.confirmPassword,
+                        createdDateTime = DateTime.UtcNow,
+                        OTP = OTP, 
 
+                    }
+                };  
                 _context.user.Add(user);
                 _context.SaveChanges();
-                return userCred.Id; // Return the ID of the newly created user
-
-
+                 await _emailService.sendRegisterOTPMail(userCred.Email.Trim(), OTP);
+                return (true, "User Registered Successfully. sent OTP"); // Return the ID of the newly created user
             }
             catch (Exception  )
             {
                 // Log the exception (ex) as needed
-                return -2; // Indicate an error occurred
+                return (false, "An error occurred while processing your request."); // Indicate an error occurred
             }
         }
 
@@ -49,7 +75,7 @@ namespace CRUDforAngular.BusinessLayer.Repos
             try
             {
                 //var Exist = _context.user.Any(u => u.Email == loginCred.Email);
-                var Exist = _context.UserInfo.Any(u => u.Email.ToLower() == loginCred.Email.ToLower());
+                var Exist = _context.UserInfo.Any(u => u.Email.ToLower() == loginCred.Email.ToLower() && u.isVerified== true);
                 if (!Exist)
                 {
                     return -1;// user not found
@@ -167,8 +193,8 @@ namespace CRUDforAngular.BusinessLayer.Repos
                     if (user != null)
                     {
                         var hasher = new PasswordHasher<ResetPasswordDto>();
-                        user.confirmPassword = resetPasswordModel.confirmPassword; // Assuming you want to set confirmPassword as well
                         user.Password = hasher.HashPassword(resetPasswordModel, resetPasswordModel.Password);
+                        user.confirmPassword = resetPasswordModel.confirmPassword; // Assuming you want to set confirmPassword as well
                         _context.SaveChanges();
                         // Mark the reset ID as used and expired
                         resetData.isUsed = true;
@@ -183,6 +209,31 @@ namespace CRUDforAngular.BusinessLayer.Repos
             {
                 // Log the exception (ex) as needed
                 return (false, "An error occurred while validating the reset ID. Please try after sometime"); // Indicate an error occurred
+            }
+        }
+
+        public async Task<(bool, string)> ValidateRegOTP(string email, string otp)
+        {
+            try
+            {
+                var user = _context.UserInfo.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+                if (user == null)
+                {
+                    return (false, "User not found."); // User not found
+                }
+                if (  user.OTP != otp)
+                {
+                    return (false, "Invalid OTP"); // Invalid OTP
+                }
+                // OTP is valid, mark the user as verified 
+                user.isVerified = true;
+                await _context.SaveChangesAsync();
+
+                return (true, "OTP validated successfully");
+            }
+            catch(Exception)
+            {
+                throw;
             }
         }
     }

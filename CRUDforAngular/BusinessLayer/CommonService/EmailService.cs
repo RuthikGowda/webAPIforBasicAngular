@@ -14,7 +14,7 @@ namespace CRUDforAngular.BusinessLayer.CommonService
         {
             _smtpOptions = smtpOptions.Value;
         }
-        public async Task<int> sendRegisterOTPMail(string email, string otp)
+        public async Task sendRegisterOTPMail(string email, string otp)
         {
             try
             {
@@ -44,13 +44,14 @@ namespace CRUDforAngular.BusinessLayer.CommonService
 
                 Console.WriteLine($"Sending OTP {otp} to {email}");
 
-                return 1; // Return 1 to indicate success
+                  // Return 1 to indicate success
             }
             catch (Exception ex)
             {
                 // Log the exception (ex) as needed
                 Console.WriteLine($"Error sending email: {ex.Message}");
-                return -1; // Return -1 to indicate failure
+                throw;
+                 // Return -1 to indicate failure
             }
         }
 

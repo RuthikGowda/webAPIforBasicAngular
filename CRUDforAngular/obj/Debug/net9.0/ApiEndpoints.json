@@ -2,14 +2,14 @@
   {
     "ContainingType": "CRUDforAngular.Controllers.UserProfileController",
     "Method": "deleteEmpByID",
-    "RelativePath": "api/deleteByID",
+    "RelativePath": "api/deleteByEmail",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.Int32",
+        "Name": "email",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -125,7 +125,7 @@
     "Parameters": [
       {
         "Name": "userCred",
-        "Type": "CRUDforAngular.BusinessLayer.Models.userRegistration",
+        "Type": "CRUDforAngular.BusinessLayer.DTOs.UserRegistrationDTO",
         "IsRequired": true
       }
     ],
@@ -142,6 +142,27 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDforAngular.Controllers.userRegistrationController",
+    "Method": "ValidateOTP",
+    "RelativePath": "api/userRegistration/validateRegOTP",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "otp",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],

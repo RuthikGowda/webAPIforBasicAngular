@@ -21,9 +21,9 @@ namespace CRUDforAngular.BusinessLayer.Models
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
+         
         [DataType(DataType.Date)]
-        public DateOnly DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; } = null;
 
       
 

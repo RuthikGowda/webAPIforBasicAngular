@@ -3,6 +3,7 @@ using CRUDforAngular.BusinessLayer.Models;
 using CRUDforAngular.BusinessLayer.Repos;
 using CRUDforAngular.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,8 +34,7 @@ namespace CRUDforAngular.BusinessLayer.Repos
                 })
                 .FirstOrDefaultAsync();
         }
-
-
+         
         public async Task<IList<UserProfileDTO>> GetAllEmployeeDataAsync()
         {
             var userProfiles = await _context.user
@@ -46,10 +46,10 @@ namespace CRUDforAngular.BusinessLayer.Repos
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     Email = u.Email,
-                    DateOfBirth = u.DateOfBirth,
+                    DateOfBirth = u.DateOfBirth.HasValue ? (u.DateOfBirth.Value) : null,
                     Phone = u.Phone.ToList(),
                     Address = u.Address.ToList(),
-                    
+
                 })
                 .ToListAsync();
 
@@ -88,6 +88,7 @@ namespace CRUDforAngular.BusinessLayer.Repos
                 var userInfo = await _context.user.FirstOrDefaultAsync(u => u.Id == userProfile.Id);
                 if (userInfo != null)
                 {
+                    
                     userInfo.FirstName = userProfile.FirstName;
                     userInfo.LastName = userProfile.LastName;
                     userInfo.Email = userProfile.Email;
@@ -100,9 +101,16 @@ namespace CRUDforAngular.BusinessLayer.Repos
                 }
                 else
                 {
+                    if (_context.user.Any(u => u.Email == userProfile.Email))
+                    {
+                        return "Email already exists";
+                    }
                     var loginExist = _context.UserInfo.FirstOrDefault(u => u.Email == userProfile.Email);
                     if (loginExist is null)
                     {
+                        var hasher = new PasswordHasher<UserProfileDTO>();
+                        // Hash the password before saving
+                        var hashedPassword = hasher.HashPassword(userProfile, "Qwer1234");
                         _context.user.Add(new UserInfo
                         {
                             FirstName = userProfile.FirstName,
@@ -113,6 +121,11 @@ namespace CRUDforAngular.BusinessLayer.Repos
                             UserRegistration = new userRegistration
                             {
                                 Email = userProfile.Email,
+                                Password = hashedPassword, // Set a default password or handle it as needed
+                                confirmPassword = "Qwer1234",
+                                isVerified = true,
+                                createdDateTime = DateTime.UtcNow,
+
                             },
                             // Assuming Id is the UserRegistrationId
                             Address = userProfile.Address,
@@ -147,29 +160,44 @@ namespace CRUDforAngular.BusinessLayer.Repos
             }
             return "User not found";
         }
-         public async Task<bool> deleteEmpByIDAsync(int id)
+        public async Task<bool> deleteEmpByIDAsync(string email)
         {
             try
             {
-                var exist = await _context.user.FirstOrDefaultAsync(u => u.Id == id);
 
-                if (exist != null)
+                var normalizedEmail = email.ToLower();
+                var userExists = await _context.user
+                    .AsNoTracking()
+                    .AnyAsync(u => u.Email == normalizedEmail);
+
+                var userInfoExists = await _context.UserInfo
+                    .AsNoTracking()
+                    .AnyAsync(u => u.Email == normalizedEmail);
+
+                if (userExists || userInfoExists)
                 {
-                    await _context.user.Where(u => u.Id == id).ExecuteDeleteAsync();
-                    await _context.UserInfo.Where(u => u.Email == exist.Email).ExecuteDeleteAsync();
-                    _context.SaveChanges();
+                    await _context.UserInfo
+                        .Where(u => u.Email == normalizedEmail)
+                        .ExecuteDeleteAsync();
+
+                    await _context.user
+                        .Where(u => u.Email == normalizedEmail)
+                        .ExecuteDeleteAsync();
+
                     return true;
                 }
+
                 return false;
 
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }
         }
 
-        
 
-     }
+
+
+    }
 }

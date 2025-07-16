@@ -12,7 +12,7 @@ namespace CRUDforAngular.BusinessLayer.Repos
         public Task<string> UpdateUserProfileAsync(UserProfileDTO userProfile);
 
        // public Task<Boolean> deleteEmpByIDAsync(int id);
-        public   Task<bool> deleteEmpByIDAsync(int id);
+        public   Task<bool> deleteEmpByIDAsync(string email);
 
     }
 }

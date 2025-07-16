@@ -68,21 +68,21 @@ namespace CRUDforAngular.Controllers
         }
 
         [HttpGet]
-        [Route("api/deleteByID")]
-        public async Task<IActionResult> deleteEmpByID([FromQuery] int id)
+        [Route("api/deleteByEmail")]
+        public async Task<IActionResult> deleteEmpByID([FromQuery] string email)
         {
             try
             {
                 bool deleted = false;
-                if (id == 0)
+                if (email is null)
                     return Ok(new Response<string>
                     {
                         Success = false,
                         Message = "deletion invalid!",
                         Data = "deletion failed!"
                     });
-                if (id > 0)
-                    deleted = await _userProfileRepo.deleteEmpByIDAsync(id);
+                 
+                    deleted = await _userProfileRepo.deleteEmpByIDAsync(email);
 
                 return Ok(new Response<string>
                 {

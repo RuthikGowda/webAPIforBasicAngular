@@ -12,8 +12,7 @@ namespace CRUDforAngular.BusinessLayer.Models
 
         [Required]
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
-
-        
+         
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; } = string.Empty;
         [Required]
@@ -24,9 +23,12 @@ namespace CRUDforAngular.BusinessLayer.Models
         [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
         public string confirmPassword { get; set; } = string.Empty;
 
-
-
-       
+        [BindNever]
+        public string? OTP { get; set; } = string.Empty;
+        [DataType(DataType.DateTime)]
+        public DateTime createdDateTime { get; set; } = DateTime.UtcNow;
+        public bool isVerified { get; set; } = false;
+ 
 
     }
 }

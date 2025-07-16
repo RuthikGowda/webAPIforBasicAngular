@@ -25,7 +25,7 @@ namespace CRUDforAngular.Controllers
 
         [HttpPost]
         [Route("api/userRegistration")]
-        public async Task<IActionResult> Register([FromBody] userRegistration userCred)
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userCred)
         {
             string OTP = string.Empty;
             if (!ModelState.IsValid)
@@ -37,51 +37,49 @@ namespace CRUDforAngular.Controllers
                     Message = $"Validation failed.{errors.ToString()}",
                     Data = errors
                 });
-            }
-
-            int result;
-
-            result = _userRegistrationRepo.RegisterUser(userCred);
-
-            if (result == -1)
+            } 
+            OTP =   new Random().Next(0, 999999).ToString("D6"); // Generate a random 6 digit OTP
+           
+            (bool result, string message) = await  _userRegistrationRepo.RegisterUser(userCred, OTP);
+  
+            return new JsonResult(new Response<string>
             {
-                return Ok(new Response<int>
-                {
-                    Success = false,
-                    Message = "Email already exists.",
-                    Data = result
-                });
-            }
-            else if (result == -2)
-            {
-                return new JsonResult(new Response<int>
-                {
-                    Success = false,
-                    Message = "An error occurred while processing your request.",
-                    Data = result
-                });
-            }
-
-            if (result > 0)
-            {
-                OTP = new Random().Next(0, 999999).ToString("D6"); // Generate a random 6 digit OTP
-
-                await _emailService.sendRegisterOTPMail(userCred.Email.Trim(), OTP);
-
-
-            }
-
-            return new JsonResult(new Response<object>
-            {
-                Success = true,
-                Message = "user Registered Successfully.",
-                Data = new
-                {
-                    userId = result,
-                    otp = OTP,
-                }
+                Success = result,
+                Message = message,
+                Data = ""
             });
 
+        }
+
+        // validate the OTP and confirm the user registration
+        [HttpGet]
+        [Route("api/userRegistration/validateRegOTP")]
+        public async Task<IActionResult> ValidateOTP([FromQuery] string email, [FromQuery] string otp)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(otp))
+                {
+                    return BadRequest("Email and OTP cannot be null or empty.");
+                }
+                var validationResult = await _userRegistrationRepo.ValidateRegOTP(email, otp);
+
+                return Ok(new Response<string>
+                {
+                    Success = validationResult.Item1,
+                    Message = validationResult.Item2,
+                    Data = ""
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<string>
+                {
+                    Success = false,
+                    Message = $"An error occurred while processing your request: {ex.Message}",
+                    Data = ""
+                });
+            }
         }
 
         [HttpPost]
