@@ -18,9 +18,9 @@ namespace CRUDforAngular.BusinessLayer.Repos
         }
         public async Task<UserProfileDTO?> GetUserDataAsync(string emailId)
         {
-            return await _context.user
+            return await _context.user.AsNoTracking()
                 .Include(u => u.Phone)
-                .Include(u => u.Address)
+                .Include(u => u.Address).AsSplitQuery()
                 .Where(u => u.Email.ToUpper().Equals(emailId.ToUpper()))
                 .Select(u => new UserProfileDTO
                 {

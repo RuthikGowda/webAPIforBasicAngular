@@ -1,26 +1,38 @@
 ﻿using CRUDforAngular.BusinessLayer.CommonService;
 using CRUDforAngular.BusinessLayer.DTOs;
 using CRUDforAngular.BusinessLayer.Models;
-
 using CRUDforAngular.BusinessLayer.Repos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using NETCore.MailKit.Core;
 using System.ComponentModel.DataAnnotations;
 
 namespace CRUDforAngular.Controllers
 {
     [ApiController]
+    [AllowAnonymous]
     public class userRegistrationController : ControllerBase
     {
 
         private readonly IuserRegistrationRepo _userRegistrationRepo;
         private readonly BusinessLayer.CommonService.EmailService _emailService;
-        public userRegistrationController(IuserRegistrationRepo userRegistrationRepo, BusinessLayer.CommonService.EmailService emailService)
+        private readonly ILogger<userRegistrationController> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly AuthLayer _authLayer;
+
+        public userRegistrationController(
+            IuserRegistrationRepo userRegistrationRepo,
+            BusinessLayer.CommonService.EmailService emailService,
+            ILogger<userRegistrationController> logger,
+            IConfiguration configuration)
         {
             _userRegistrationRepo = userRegistrationRepo;
             _emailService = emailService;
-
+            _logger = logger;
+            _configuration = configuration;
+            _authLayer = new AuthLayer(_configuration);
         }
 
         [HttpPost]
@@ -37,11 +49,11 @@ namespace CRUDforAngular.Controllers
                     Message = $"Validation failed.{errors.ToString()}",
                     Data = errors
                 });
-            } 
-            OTP =   new Random().Next(0, 999999).ToString("D6"); // Generate a random 6 digit OTP
-           
-            (bool result, string message) = await  _userRegistrationRepo.RegisterUser(userCred, OTP);
-  
+            }
+            OTP = new Random().Next(0, 999999).ToString("D6"); // Generate a random 6 digit OTP
+
+            (bool result, string message) = await _userRegistrationRepo.RegisterUser(userCred, OTP);
+
             return new JsonResult(new Response<string>
             {
                 Success = result,
@@ -73,11 +85,19 @@ namespace CRUDforAngular.Controllers
             }
             catch (Exception ex)
             {
+                var errorInfo = new
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(System.Text.Json.JsonSerializer.Serialize(errorInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response<string>
                 {
                     Success = false,
-                    Message = $"An error occurred while processing your request: {ex.Message}",
-                    Data = ""
+                    Message = $"An error occurred while processing your request",
+                    Data = null
                 });
             }
         }
@@ -93,7 +113,6 @@ namespace CRUDforAngular.Controllers
         [Route("api/userLogin")]
         public IActionResult Login(LoginModel loginCred)
         {
-
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
@@ -126,19 +145,22 @@ namespace CRUDforAngular.Controllers
                 });
             }
 
-            return Ok(new Response<int>
+            // If login is successful, generate JWT token
+            // You may want to fetch the user's role from DB, here assuming "User" as default
+            string token = _authLayer.generateToken(loginCred.Email, "User");
+
+            return Ok(new Response<string>
             {
                 Success = true,
-                Message = "success.",
-                Data = result
+                Message = "Login successful.",
+                Data = token
             });
         }
 
-
         [HttpGet]
         [Route("api/userPasswordReset")]
-        public async Task<IActionResult> resetPasswordforUser([FromQuery] [Required(ErrorMessage ="Email Id is required")]
-         [EmailAddress(ErrorMessage ="Entered Email Address is not valid")]string emailId)
+        public async Task<IActionResult> resetPasswordforUser([FromQuery][Required(ErrorMessage = "Email Id is required")]
+         [EmailAddress(ErrorMessage = "Entered Email Address is not valid")] string emailId)
         {
             try
             {
@@ -155,8 +177,6 @@ namespace CRUDforAngular.Controllers
                 {
                     Guid resetId = Guid.NewGuid();
                     string resetLink = $"https://ruthik-first-project-silk.vercel.app/resetpassword?email={emailId}&resetId={resetId}"; // Generate your reset link here
-                                                                                                                                         // Save the resetId and emailId in the database for later validation
-
 
                     dbUdated = await _userRegistrationRepo.savePasswordInfo(emailId, resetId.ToString());
                     if (dbUdated)
@@ -175,7 +195,7 @@ namespace CRUDforAngular.Controllers
                     return Ok(new Response<string>
                     {
                         Success = false,
-                        Message = $"Email not found. Please use a valid email or <a href='http://localhost:4200/Register' style='color: #007bff; text-decoration: none; font-weight: bold;'>Register</a>.",
+                        Message = $"Email not foun          d. Please use a valid email or <a href='http://localhost:4200/Register' style='color: #007bff; text-decoration: none; font-weight: bold;'>Register</a>.",
                         Data = null
                     });
                 }
@@ -188,8 +208,6 @@ namespace CRUDforAngular.Controllers
                     Message = $"An error occurred while processing your request",
                     Data = null
                 });
-
-
             }
         }
 
@@ -234,15 +252,13 @@ namespace CRUDforAngular.Controllers
                 });
             }
             (bool result, string message) = await _userRegistrationRepo.resetPassword(resetPasswordModel);
-            
-                return Ok(new Response<bool>
-                {
-                    Success = result,
-                    Message = message,
-                    Data = result
-                });
-            
 
+            return Ok(new Response<bool>
+            {
+                Success = result,
+                Message = message,
+                Data = result
+            });
         }
     }
 }

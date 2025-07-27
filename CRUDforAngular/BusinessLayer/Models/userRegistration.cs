@@ -26,7 +26,7 @@ namespace CRUDforAngular.BusinessLayer.Models
         [BindNever]
         public string? OTP { get; set; } = string.Empty;
         [DataType(DataType.DateTime)]
-        public DateTime createdDateTime { get; set; } = DateTime.UtcNow;
+        public DateTime? createdDateTime { get; set; } = DateTime.UtcNow;
         public bool isVerified { get; set; } = false;
  
 

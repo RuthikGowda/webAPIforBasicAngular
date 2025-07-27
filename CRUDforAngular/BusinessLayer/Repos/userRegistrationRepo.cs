@@ -5,6 +5,7 @@ using CRUDforAngular.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.X86;
+using System.Text.Json;
 
 namespace CRUDforAngular.BusinessLayer.Repos
 {
@@ -13,12 +14,14 @@ namespace CRUDforAngular.BusinessLayer.Repos
         private readonly MyDBContext _context;
         private readonly IuserProfileRepo _userProfileRepo;
         private readonly EmailService _emailService;
+        private readonly ILogger<userRegistrationRepo> _logger;
         public userRegistrationRepo(MyDBContext context, IuserProfileRepo userProfileRepo,
-            EmailService emailService)
+            EmailService emailService, ILogger<userRegistrationRepo> logger)
         {
             _context = context;
             _userProfileRepo = userProfileRepo;
             _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<(bool, string)> RegisterUser(UserRegistrationDTO userCred, string OTP)
@@ -63,9 +66,19 @@ namespace CRUDforAngular.BusinessLayer.Repos
                  await _emailService.sendRegisterOTPMail(userCred.Email.Trim(), OTP);
                 return (true, "User Registered Successfully. sent OTP"); // Return the ID of the newly created user
             }
-            catch (Exception  )
+            catch (Exception  ex)
             {
+                var errorInfo = new
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(JsonSerializer.Serialize(errorInfo, new JsonSerializerOptions { WriteIndented = true }));
+
                 // Log the exception (ex) as needed
+
                 return (false, "An error occurred while processing your request."); // Indicate an error occurred
             }
         }
@@ -208,6 +221,15 @@ namespace CRUDforAngular.BusinessLayer.Repos
             catch (Exception ex)
             {
                 // Log the exception (ex) as needed
+                var errorInfo = new
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(JsonSerializer.Serialize(errorInfo, new JsonSerializerOptions { WriteIndented = true }));
+
                 return (false, "An error occurred while validating the reset ID. Please try after sometime"); // Indicate an error occurred
             }
         }
@@ -231,8 +253,17 @@ namespace CRUDforAngular.BusinessLayer.Repos
 
                 return (true, "OTP validated successfully");
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                var errorInfo = new
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(JsonSerializer.Serialize(errorInfo, new JsonSerializerOptions { WriteIndented = true }));
+
                 throw;
             }
         }

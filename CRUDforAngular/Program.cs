@@ -3,8 +3,10 @@ using CRUDforAngular.BusinessLayer.Models;
 using CRUDforAngular.BusinessLayer.Repos;
 using CRUDforAngular.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
  
-
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://*:8080");
 
@@ -17,7 +19,37 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 //add swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "CRUDforAngular API", Version = "v1" });
+
+    // Add JWT Bearer definition
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your valid JWT token.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...\""
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
 //builder.Services.AddDbContext<MyDBContext>( 
 //    options => options.UseSqlServer(
 //        builder.Configuration.GetConnectionString("LocalConStr") 
@@ -43,9 +75,32 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<smtpOptions>(builder.Configuration.GetSection(nameof(smtpOptions)));
 
+// implement seri Log for logging
+Log.Logger = new LoggerConfiguration()
+   .MinimumLevel.Information()
+   .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+   .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+   .CreateLogger(); 
+builder.Host.UseSerilog();
 
 
+//add jwt authentication
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["jwt:issuer"],
+            ValidAudience = builder.Configuration["jwt:audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["jwt:key"]))
+        };
 
+    });
+
+ 
 var app = builder.Build();
 
 
@@ -71,7 +126,7 @@ app.UseExceptionHandler(errorApp =>
 
 //app.MapOpenApi();
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI();
  
 
 app.UseHttpsRedirection();

@@ -9,10 +9,12 @@ namespace CRUDforAngular.BusinessLayer.CommonService
     public class EmailService
     {
         private readonly smtpOptions _smtpOptions;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IOptions<smtpOptions> smtpOptions)
+        public EmailService(IOptions<smtpOptions> smtpOptions, ILogger<EmailService> logger)
         {
             _smtpOptions = smtpOptions.Value;
+            _logger = logger;
         }
         public async Task sendRegisterOTPMail(string email, string otp)
         {
@@ -48,8 +50,13 @@ namespace CRUDforAngular.BusinessLayer.CommonService
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) as needed
-                Console.WriteLine($"Error sending email: {ex.Message}");
+                var errorInfo = new {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(System.Text.Json.JsonSerializer.Serialize(errorInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                 throw;
                  // Return -1 to indicate failure
             }
@@ -104,8 +111,13 @@ namespace CRUDforAngular.BusinessLayer.CommonService
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) as needed
-                Console.WriteLine($"Error sending email: {ex.Message}");
+                var errorInfo = new {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message,
+                    Source = ex.Source
+                };
+                _logger.LogError(System.Text.Json.JsonSerializer.Serialize(errorInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                 return false; // Return false to indicate failure
 
             }
