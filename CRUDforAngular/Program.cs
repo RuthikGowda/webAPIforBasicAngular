@@ -14,8 +14,7 @@ builder.WebHost.UseUrls("http://*:8080");
  
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-
-
+ 
 builder.Services.AddOpenApi();
 //add swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -50,25 +49,36 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-//builder.Services.AddDbContext<MyDBContext>( 
-//    options => options.UseSqlServer(
-//        builder.Configuration.GetConnectionString("LocalConStr") 
-//    )
-//);
-
 builder.Services.AddDbContext<MyDBContext>(
-    options=> options.UseNpgsql(
-        builder.Configuration.GetConnectionString("PostgresConStr")
-    ));
- 
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("LocalConStr")
+    )
+);
+
+//builder.Services.AddDbContext<MyDBContext>(
+//    options => options.UseNpgsql(
+//        builder.Configuration.GetConnectionString("PostgresConStr"), npgsqlOptions =>
+//        {
+//            // Configure connection resilience at the database level
+//            npgsqlOptions.EnableRetryOnFailure(
+//                maxRetryCount: 3,
+//                maxRetryDelay: TimeSpan.FromSeconds(5),
+//                errorCodesToAdd: null);
+//            npgsqlOptions.CommandTimeout(30);
+//        })
+//    );
+
 builder.Services.AddScoped<IuserRegistrationRepo, userRegistrationRepo>();
 builder.Services.AddScoped<IuserProfileRepo, userProfileRepo>();
+builder.Services.AddScoped<IAdminHomePageManage, AdminHomePageManage>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<IOpenAIservice, OpenAIservice>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name:"AngularSite", builder =>
     {
-        builder.WithOrigins(["http://localhost:4200", "http://localhost:8080","https://ruthik-first-project-silk.vercel.app"]).AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins(["http://localhost:4200", "http://localhost:8080","https://ruthik-first-project-silk.vercel.app"])
+        .AllowAnyHeader().AllowAnyMethod();
     });
 
 });
@@ -115,8 +125,7 @@ app.UseExceptionHandler(errorApp =>
         var error = new
         {
             Message = "An unexpected error occurred. Please try again later."
-        };
-
+        }; 
         await context.Response.WriteAsJsonAsync(error);
     });
 });
@@ -132,11 +141,12 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseCors("AngularSite");
 app.UseRouting();
+app.UseStaticFiles();
 
 
 app.UseAuthorization();
  
 
 app.MapControllers();
-
+ 
 app.Run();

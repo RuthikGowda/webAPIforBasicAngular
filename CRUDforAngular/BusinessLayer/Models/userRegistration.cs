@@ -17,7 +17,7 @@ namespace CRUDforAngular.BusinessLayer.Models
         public string Email { get; set; } = string.Empty;
         [Required]
         [DataType(DataType.Password)]
-        [StringLength(15, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        [StringLength(100, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
         public string Password { get; set; } = string.Empty;
 
         [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]

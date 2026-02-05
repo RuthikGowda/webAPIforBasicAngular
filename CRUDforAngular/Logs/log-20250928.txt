@@ -1,0 +1,1 @@
+2025-09-28 09:58:35.961 +05:30 [ERR] An error occurred using the connection to database 'mypostfresinstance' on server 'tcp://dpg-d3c94nq4d50c73cc9hf0-a.oregon-postgres.render.com:5432'.
