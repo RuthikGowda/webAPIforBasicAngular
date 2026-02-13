@@ -72,6 +72,7 @@ builder.Services.AddScoped<IuserRegistrationRepo, userRegistrationRepo>();
 builder.Services.AddScoped<IuserProfileRepo, userProfileRepo>();
 builder.Services.AddScoped<IAdminHomePageManage, AdminHomePageManage>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<ManageCloudinary>();
 builder.Services.AddScoped<IOpenAIservice, OpenAIservice>();
 builder.Services.AddCors(options =>
 {

@@ -1,4 +1,5 @@
-﻿using CRUDforAngular.BusinessLayer.DTOs.Admin;
+﻿using CRUDforAngular.BusinessLayer.CommonService;
+using CRUDforAngular.BusinessLayer.DTOs.Admin;
 using CRUDforAngular.BusinessLayer.Models;
 using CRUDforAngular.BusinessLayer.Repos;
 using CRUDforAngular.Services;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CRUDforAngular.Controllers
@@ -17,12 +19,14 @@ namespace CRUDforAngular.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IAdminHomePageManage _adminHomePageManage;
         private readonly IOpenAIservice _openAIservice;
+        private readonly ManageCloudinary _manageCloudinary;
         public ManageHomeController(IWebHostEnvironment WebHostEnvironment, IAdminHomePageManage AdminHomePageManage,
-            IOpenAIservice OpenAIservice)
+            IOpenAIservice OpenAIservice,ManageCloudinary manageCloudinary)
         {
             _env = WebHostEnvironment;
             _adminHomePageManage = AdminHomePageManage;
             _openAIservice = OpenAIservice;
+            _manageCloudinary = manageCloudinary;
         }
 
         [HttpPost]
@@ -149,24 +153,84 @@ namespace CRUDforAngular.Controllers
 
         }
 
-        [HttpGet("test/yeild")]
-        public async IAsyncEnumerable<string> GetAI(string id)
+
+        [HttpPost]
+        [Route("AddCategory")]
+        public async Task<IActionResult> AddCategory([FromForm] CategoryDTO categoryDTO)
         {
-            await foreach (var line in GetLines())
+            if (!ModelState.IsValid)
             {
-                yield return line;
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Conflict(new Response<List<string>>
+                {
+                    Success = false,
+                    Message = $"Validation failed.{errors.ToString()}",
+                    Data = errors
+                });
             }
+            if(categoryDTO.Image is  null || categoryDTO.Image.Length <= 0)
+                return BadRequest("No image was uploaded.");
+
+            string imageExtension = Path.GetExtension(categoryDTO.Image.FileName).ToLower();
+            if (imageExtension != ".png" && imageExtension != ".jpg" && imageExtension != ".jpeg")
+            {
+                 return Ok(new Response<string>
+                {
+                    Message = "Invalid image format. Only .png, .jpg, and .jpeg are allowed.",
+                    Success = false,
+                    Data = ""
+
+                });
+            }
+             
+            string uploadsFolder = Path.Combine(_env.WebRootPath, "images");
+            string fileName = $"{Guid.NewGuid().ToString()}_{categoryDTO.Image.FileName}";
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            Directory.CreateDirectory(uploadsFolder);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await categoryDTO.Image.CopyToAsync(fileStream);
+            }
+
+          string UploadedURL = await   _manageCloudinary.UploadImageTOCloudinay(filePath);
+
+            ProductCategory productCategory = new ProductCategory()
+            {
+                categoryId = categoryDTO.Id,
+                categoryName = categoryDTO.Title,
+                categoryDescription = categoryDTO.Description,
+                Imageurl = UploadedURL
+            };
+
+          bool CategoryUploaded = await  _adminHomePageManage.AddCategory(productCategory);
+
+
+            return Ok(new Response<string>
+            {
+                Message = CategoryUploaded ? "Category added successfully" : "Failed to add Category",
+                Success = CategoryUploaded,
+                Data = ""
+
+            });
         }
 
-        private async IAsyncEnumerable<string> GetLines()
+        [HttpGet]
+        [Route("GetCategory")]
+        public async Task<IActionResult> getCategory()
         {
-            string[] Array = new string[] { "A", "B", "C", "D" };
-            foreach (string line in Array)
+            
+                var data = await _adminHomePageManage.GetProductCategories();
+            return Ok(new Response<IEnumerable<CategoryItem>>
             {
-                // Simulate asynchronous operation
-                await Task.Delay(10);
-                yield return line;
-            }
+                Message = "Carousel data retrieved successfully.",
+                Success = true,
+                Data = data
+            });
+
+            
+             
         }
     }
 }

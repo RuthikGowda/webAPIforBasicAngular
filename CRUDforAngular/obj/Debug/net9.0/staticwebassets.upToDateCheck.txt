@@ -1,1 +1,2 @@
 wwwroot\Images\92aba16c-55e7-4b4b-89aa-e875d39aa2e3_Ruthik.png
+wwwroot\Images\System.Func`1[System.Guid]men Category.webp

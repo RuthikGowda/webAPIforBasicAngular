@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+137eda9ce84ee7668416464c61173d2a758a7e7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1bc079f55976a7b2981b4625fa9282b5eae1079")]
 [assembly: System.Reflection.AssemblyProductAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CRUDforAngular")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

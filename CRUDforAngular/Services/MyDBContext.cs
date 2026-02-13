@@ -15,6 +15,7 @@ namespace CRUDforAngular.Services
 
         public DbSet<passwordReset> passwordResets { get; set; }
         public DbSet<carouselBanner> carouselBanner { get; set; }
+        public DbSet<ProductCategory> productCategory { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> options)
                 : base(options)
         {
